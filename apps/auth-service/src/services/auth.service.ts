@@ -1,7 +1,8 @@
 import { createUser, findByEmail } from "@/repositories/user.repository";
-import { RegisterInput } from "@/schemas/auth.schema";
+import { LoginInput, RegisterInput } from "@/schemas/auth.schema";
 import { AppError } from "shared";
 import bcrypt from "bcryptjs";
+import { signToken } from "@/utils/jwt";
 
 export async function register(input: RegisterInput) {
   const existing = await findByEmail(input.email);
@@ -16,4 +17,20 @@ export async function register(input: RegisterInput) {
     role: "USER",
   });
   return user;
+}
+
+export async function login(input: LoginInput) {
+  const user = await findByEmail(input.email);
+  if (!user) {
+    throw new AppError(401, "Invalid email or password");
+  }
+  const isValid = await bcrypt.compare(input.password, user.password_hash);
+  if (!isValid) {
+    throw new AppError(401, "Invalid email or password");
+  }
+  const token = signToken({ userId: user.id, role: user.role });
+  return {
+    token,
+    user,
+  };
 }

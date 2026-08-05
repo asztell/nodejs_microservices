@@ -8,3 +8,8 @@ export type User = {
   role: UserRole;
   created_at: Date;
 };
+
+export type JwtPayload = {
+  userId: string;
+  role: UserRole;
+};
