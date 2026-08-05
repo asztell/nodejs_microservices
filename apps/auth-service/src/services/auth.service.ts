@@ -1,4 +1,8 @@
-import { createUser, findByEmail } from "@/repositories/user.repository";
+import {
+  createUser,
+  findByEmail,
+  findById,
+} from "@/repositories/user.repository";
 import { LoginInput, RegisterInput } from "@/schemas/auth.schema";
 import { AppError } from "shared";
 import bcrypt from "bcryptjs";
@@ -33,4 +37,12 @@ export async function login(input: LoginInput) {
     token,
     user,
   };
+}
+
+export async function getMe(userId: string) {
+  const user = await findById(userId);
+  if (!user) {
+    throw new AppError(404, "User not found");
+  }
+  return user;
 }
