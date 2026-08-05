@@ -9,7 +9,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:auth": "npm run dev -w auth-service"
+    "dev:auth": "npm run dev -w auth-service",
+    "db:migrate": "tsx scripts/db-migrate.ts"
   },
   "devDependencies": {
     "tsx": "^4.23.5",
