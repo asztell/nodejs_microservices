@@ -41,7 +41,6 @@ export async function login(input: LoginInput) {
 
 export async function getMe(userId: string) {
   const user = await findById(userId);
-  console.log("===>>", { user });
   if (!user) {
     throw new AppError(404, "User not found");
   }

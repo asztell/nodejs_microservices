@@ -18,8 +18,6 @@ export async function register(
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await authService.login(req.body);
-    console.log({ result });
-
     successResponse(res, result);
   } catch (error) {
     next(error);

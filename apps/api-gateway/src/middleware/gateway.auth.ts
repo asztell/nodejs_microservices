@@ -16,7 +16,6 @@ function stripIdentityHeaders(req: Request) {
 
 function attachGatewaySecret(req: Request) {
   const secret = process.env.GATEWAY_SECRET;
-  console.log("===> env", process.env);
   if (!secret) {
     throw new AppError(500, "GATEWAT_SECRET is not set");
   }
