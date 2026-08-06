@@ -5,6 +5,7 @@ export function successResponse(
   data: unknown,
   statusCode = 200,
 ) {
+  console.log({ data });
   return res.status(statusCode).json({
     success: true,
     data,

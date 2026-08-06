@@ -4,9 +4,9 @@ import {
   findById,
 } from "@/repositories/user.repository";
 import { LoginInput, RegisterInput } from "@/schemas/auth.schema";
-import { AppError } from "shared";
+import { AppError, signToken } from "shared";
 import bcrypt from "bcryptjs";
-import { signToken } from "@/utils/jwt";
+import { convertToPublicUser } from "@/utils/auth.utils";
 
 export async function register(input: RegisterInput) {
   const existing = await findByEmail(input.email);
@@ -20,7 +20,7 @@ export async function register(input: RegisterInput) {
     passwordHash,
     role: "USER",
   });
-  return user;
+  return convertToPublicUser(user);
 }
 
 export async function login(input: LoginInput) {
@@ -35,14 +35,15 @@ export async function login(input: LoginInput) {
   const token = signToken({ userId: user.id, role: user.role });
   return {
     token,
-    user,
+    user: convertToPublicUser(user),
   };
 }
 
 export async function getMe(userId: string) {
   const user = await findById(userId);
+  console.log("===>>", { user });
   if (!user) {
     throw new AppError(404, "User not found");
   }
-  return user;
+  return convertToPublicUser(user);
 }

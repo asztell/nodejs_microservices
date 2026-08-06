@@ -18,6 +18,8 @@ export async function register(
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await authService.login(req.body);
+    console.log({ result });
+
     successResponse(res, result);
   } catch (error) {
     next(error);
@@ -30,8 +32,8 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
     if (!userId) {
       throw new AppError(401, "missing x-user-id header");
     }
-    const user = authService.getMe(userId);
-    successResponse(res, user);
+    const user = await authService.getMe(userId);
+    successResponse(res, { user });
   } catch (error) {
     next(error);
   }

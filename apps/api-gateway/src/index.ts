@@ -12,6 +12,7 @@ import {
   successResponse,
 } from "shared";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { gatewayAuth } from "./middleware/gateway.auth";
 
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), "../../.env") });
@@ -41,6 +42,7 @@ app.use("/health", (_req, res) => {
 
 app.use(
   "/auth",
+  gatewayAuth,
   createProxyMiddleware({
     target: AUTH_SERVICE_URL,
     changeOrigin: true,
