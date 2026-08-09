@@ -1,4 +1,3 @@
-import { match } from "node:assert";
 import { UserRole } from "shared";
 
 export type RBACRule = {
@@ -24,6 +23,31 @@ const rbacRules: RBACRule[] = [
     path: "/auth/me",
     roles: ["USER", "ADMIN"],
   },
+  {
+    method: "POST",
+    path: "/tasks",
+    roles: ["USER", "ADMIN"],
+  },
+  {
+    method: "GET",
+    path: "/tasks",
+    roles: ["USER", "ADMIN"],
+  },
+  {
+    method: "GET",
+    path: "/tasks/:taskId",
+    roles: ["USER", "ADMIN"],
+  },
+  {
+    method: "DELETE",
+    path: "/tasks/:taskId",
+    roles: ["ADMIN"],
+  },
+  {
+    method: "PATCH",
+    path: "/tasks/:taskId",
+    roles: ["USER", "ADMIN"],
+  },
 ];
 
 function matchPath(pattern: string, actual: string): boolean {
@@ -36,6 +60,7 @@ function matchPath(pattern: string, actual: string): boolean {
     return false;
   }
   return patternParts.every(
+    // eslint-disable-next-line security/detect-object-injection
     (part, index) => part.startsWith(":") || part === actualParts[index],
   );
 }

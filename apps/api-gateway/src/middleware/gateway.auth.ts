@@ -10,7 +10,7 @@ const IDENTITY_HEADERS = [
 
 function stripIdentityHeaders(req: Request) {
   for (const header of IDENTITY_HEADERS) {
-    delete req.headers[header];
+    Reflect.deleteProperty(req.headers, header);
   }
 }
 
@@ -25,7 +25,7 @@ function attachGatewaySecret(req: Request) {
 function requestPath(req: Request) {
   const combined = `${req.baseUrl}${req.path}`;
   if (combined.length > 1 && combined.endsWith("/")) {
-    return combined.slice(0, 1);
+    return combined.slice(0, -1);
   }
   return combined || "/";
 }

@@ -17,7 +17,11 @@ import { gatewayAuth } from "./middleware/gateway.auth";
 config({ path: resolve(process.cwd(), ".env") });
 config({ path: resolve(process.cwd(), "../../.env") });
 
-const { PORT = 3000, AUTH_SERVICE_URL = "http://127.0.0.1:3001" } = process.env;
+const {
+  PORT = 3000,
+  AUTH_SERVICE_URL = "http://127.0.0.1:3001",
+  TASK_SERVICE_URL = "http://127.0.0.1:3002",
+} = process.env;
 
 const app = express();
 
@@ -47,6 +51,16 @@ app.use(
     target: AUTH_SERVICE_URL,
     changeOrigin: true,
     pathRewrite: (path) => `/auth${path}`,
+  }),
+);
+
+app.use(
+  "/tasks",
+  gatewayAuth,
+  createProxyMiddleware({
+    target: TASK_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: (path) => `/tasks${path}`,
   }),
 );
 
