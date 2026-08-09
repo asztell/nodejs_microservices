@@ -31,11 +31,11 @@ export default tseslint.config(
       }
     },
     rules: {
-      'no-console': 'off', // Keep open for backend/microservice terminal logs
+      'no-console': 'warn', // Keep open for backend/microservice terminal logs
       'security/detect-object-injection': 'warn', // Catches req.params security flaws
       '@typescript-eslint/no-explicit-any': 'error',
       // Fixes resolution issues for node-next module scripts
-      'n/no-missing-import': 'off',
+      'n/no-missing-import': 'warn',
       'n/no-extraneous-import': [
         'warn',
         {
