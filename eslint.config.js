@@ -16,18 +16,8 @@ export default tseslint.config(
   {
     files: ['apps/**/*.ts', 'packages/shared/**/*.ts', 'scripts/**/*.ts'],
     settings: {
-      // 'import/resolver': {
-      //   typescript: true
-      // },
       node: {
         tryExtensions: ['.js', '.json', '.node', '.ts', '.tsx', '.d.ts'],
-        // packageDir: [
-        //   __dirname,
-        //   './apps/auth-service',
-        //   './apps/api-gateway',
-        //   './apps/task-service',
-        //   './packages/*'
-        // ]
       }
     },
     languageOptions: {
