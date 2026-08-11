@@ -1,6 +1,6 @@
-import { config } from "dotenv";
 import express from "express";
 import { resolve } from "node:path";
+import dotenvx from "@dotenvx/dotenvx";
 import {
   AppError,
   errorHandler,
@@ -11,8 +11,10 @@ import {
 } from "shared";
 import authRoutes from "./routes/auth.routes";
 
-config({ path: resolve(process.cwd(), ".env") });
-config({ path: resolve(process.cwd(), "../../.env") });
+dotenvx.config({
+  path: resolve(__dirname, "../../../.env"),
+  ignore: ["MISSING_ENV_FILE"],
+});
 
 const PORT = process.env.AUTH_PORT || 3001;
 

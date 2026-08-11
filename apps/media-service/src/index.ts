@@ -1,6 +1,6 @@
+import dotenvx from "@dotenvx/dotenvx";
 import express from "express";
 import { resolve } from "node:path";
-import dotenvx from "@dotenvx/dotenvx";
 import {
   AppError,
   errorHandler,
@@ -9,14 +9,14 @@ import {
   requireGatewaySecret,
   successResponse,
 } from "shared";
-import taskRoutes from "./routes/task.routes";
+import mediaRoutes from "./routes/media.routes";
 
 dotenvx.config({
   path: resolve(__dirname, "../../../.env"),
   ignore: ["MISSING_ENV_FILE"],
 });
 
-const PORT = process.env.TASK_PORT || 3002;
+const PORT = process.env.MEDIA_PORT || 3003;
 
 const app = express();
 
@@ -25,10 +25,10 @@ app.use(httpLogger);
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
-  successResponse(res, { service: "task-service" });
+  successResponse(res, { service: "media-service" });
 });
 
-app.use("/tasks", requireGatewaySecret, taskRoutes);
+app.use("/media", requireGatewaySecret, mediaRoutes);
 
 app.use((_req, _res, next) => {
   next(new AppError(404, "Route not found"));
@@ -37,5 +37,5 @@ app.use((_req, _res, next) => {
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  logger.info(`Task service is now running on port ${PORT}`);
+  logger.info(`Media service is now running on port ${PORT}`);
 });

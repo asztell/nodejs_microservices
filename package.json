@@ -15,9 +15,12 @@
     "dev:auth": "npm run dev -w auth-service",
     "dev:gateway": "npm run dev -w api-gateway",
     "dev:tasks": "npm run dev -w task-service",
+    "dev:media": "npm run dev -w media-service",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "type-check": "tsc --build",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dotenvx:encrypt": "dotenvx encrypt",
+    "dotenvx:show": "dotenvx get -pp"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -32,6 +35,7 @@
     "typescript-eslint": "^8.66.0"
   },
   "dependencies": {
+    "@dotenvx/dotenvx": "^2.20.1",
     "@ts-safeql/sql-tag": "^0.2.2"
   }
 }

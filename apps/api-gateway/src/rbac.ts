@@ -48,6 +48,16 @@ const rbacRules: RBACRule[] = [
     path: "/tasks/:taskId",
     roles: ["USER", "ADMIN"],
   },
+  {
+    method: "POST",
+    path: "/media/:taskId/attachments",
+    roles: ["USER", "ADMIN"],
+  },
+  {
+    method: "GET",
+    path: "/media/:taskId/attachments",
+    roles: ["USER", "ADMIN"],
+  },
 ];
 
 function matchPath(pattern: string, actual: string): boolean {

@@ -1,14 +1,14 @@
-import { config } from "dotenv";
+import dotenvx from "@dotenvx/dotenvx";
 import { resolve, dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { closePool, getPool } from "../packages/shared/src/db/pool.ts";
 
-config({ path: resolve(process.cwd(), ".env") });
+dotenvx.config({ path: resolve(__dirname, "../.env") });
 
 async function main() {
-  const rootDir = process.cwd();
+  const rootDir = __dirname;
 
   // 1. Statically determine this script's directory and its parent folder
   const currentScriptDir = dirname(fileURLToPath(import.meta.url));

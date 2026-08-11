@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { AppError } from "../errors/AppError";
+import { AppError } from "../errors/AppError.js";
 
 export function requireGatewaySecret(
   req: Request,

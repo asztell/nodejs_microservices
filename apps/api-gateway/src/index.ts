@@ -1,9 +1,10 @@
-import { config } from "dotenv";
-import { resolve } from "node:path";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import dotenvx from "@dotenvx/dotenvx";
+import { resolve } from "node:path";
 import {
   AppError,
   errorHandler,
@@ -11,16 +12,18 @@ import {
   logger,
   successResponse,
 } from "shared";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import { gatewayAuth } from "./middleware/gateway.auth";
 
-config({ path: resolve(process.cwd(), ".env") });
-config({ path: resolve(process.cwd(), "../../.env") });
+dotenvx.config({
+  path: resolve(__dirname, "../../../.env"),
+  ignore: ["MISSING_ENV_FILE"],
+});
 
 const {
   PORT = 3000,
   AUTH_SERVICE_URL = "http://127.0.0.1:3001",
   TASK_SERVICE_URL = "http://127.0.0.1:3002",
+  MEDIA_SERVICE_URL = "http://127.0.0.1:3003",
 } = process.env;
 
 const app = express();
@@ -44,24 +47,33 @@ app.use("/health", (_req, res) => {
   successResponse(res, { service: "api-gateway" });
 });
 
-app.use(
-  "/auth",
-  gatewayAuth,
-  createProxyMiddleware({
-    target: AUTH_SERVICE_URL,
+function proxyMiddlewear(URL: string, context: string) {
+  return createProxyMiddleware({
+    target: URL,
     changeOrigin: true,
-    pathRewrite: (path) => `/auth${path}`,
-  }),
+    pathRewrite: (path) => `${context}${path}`,
+  });
+}
+
+const authContext = "/auth";
+app.use(
+  authContext,
+  gatewayAuth,
+  proxyMiddlewear(AUTH_SERVICE_URL, authContext),
 );
 
+const taskContext = "/tasks";
 app.use(
-  "/tasks",
+  taskContext,
   gatewayAuth,
-  createProxyMiddleware({
-    target: TASK_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: (path) => `/tasks${path}`,
-  }),
+  proxyMiddlewear(TASK_SERVICE_URL, taskContext),
+);
+
+const mediaContext = "/media";
+app.use(
+  mediaContext,
+  gatewayAuth,
+  proxyMiddlewear(MEDIA_SERVICE_URL, mediaContext),
 );
 
 app.use((_req, _res, next) => {
