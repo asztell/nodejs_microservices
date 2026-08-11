@@ -2,6 +2,7 @@ import { AppError } from "shared";
 import * as mediaRepo from "../repositories/media.repository";
 import { uploadBuffer } from "@/utils/storage";
 import { convertToPublicAttachment } from "@/utils/media.utils";
+import { publishAttachmentEvent } from "@/kafka";
 
 async function assertTaskAccess(taskId: string, userId: string, role: string) {
   const task = await mediaRepo.findTaskAccess(taskId);
@@ -19,20 +20,22 @@ export async function uploadAttachment(input: {
   role: string;
   file?: Express.Multer.File;
 }) {
-  if (!input.file) {
+  const { taskId, userId, role, file } = input;
+  if (!file) {
     throw new AppError(400, "Image file is required");
   }
-  await assertTaskAccess(input.taskId, input.userId, input.role);
+  await assertTaskAccess(taskId, userId, role);
   const uploaded = await uploadBuffer(
-    input.file.buffer,
-    input.file.mimetype || "image/jpeg",
+    file.buffer,
+    file.mimetype || "image/jpeg",
   );
   const attachment = await mediaRepo.createAttachment({
-    taskId: input.taskId,
+    taskId,
     imageUrl: uploaded.imageUrl,
     publicId: uploaded.publicId,
-    uploadedBy: input.userId,
+    uploadedBy: userId,
   });
+  await publishAttachmentEvent(taskId, userId);
   return convertToPublicAttachment(attachment);
 }
 

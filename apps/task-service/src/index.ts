@@ -37,15 +37,18 @@ app.use((_req, _res, next) => {
 
 app.use(errorHandler);
 
-async function initializeKafka() {
+async function startServer() {
   try {
     await initKafka();
+    app.listen(PORT, () => {
+      logger.info(`Task service is now running on port ${PORT}`);
+    });
   } catch (error) {
-    logger.error({ error }, "kafka producer init failed");
+    logger.error(
+      { error },
+      "Critical startup dependency failed. Exiting process. - Kafka producer init failed",
+    );
   }
 }
 
-app.listen(PORT, () => {
-  logger.info(`Task service is now running on port ${PORT}`);
-  initializeKafka();
-});
+startServer();

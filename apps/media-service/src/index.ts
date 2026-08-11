@@ -10,6 +10,7 @@ import {
   successResponse,
 } from "shared";
 import mediaRoutes from "./routes/media.routes";
+import { initKafka } from "./kafka";
 
 dotenvx.config({
   path: resolve(__dirname, "../../../.env"),
@@ -36,6 +37,18 @@ app.use((_req, _res, next) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  logger.info(`Media service is now running on port ${PORT}`);
-});
+async function startServer() {
+  try {
+    await initKafka();
+    app.listen(PORT, () => {
+      logger.info(`Media service is now running on port ${PORT}`);
+    });
+  } catch (error) {
+    logger.error(
+      { error },
+      "Critical startup dependency failed. Exiting process. - Kafka producer init failed",
+    );
+  }
+}
+
+startServer();
