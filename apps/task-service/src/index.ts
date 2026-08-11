@@ -10,6 +10,7 @@ import {
   successResponse,
 } from "shared";
 import taskRoutes from "./routes/task.routes";
+import { initKafka } from "./kafka";
 
 dotenvx.config({
   path: resolve(__dirname, "../../../.env"),
@@ -36,6 +37,15 @@ app.use((_req, _res, next) => {
 
 app.use(errorHandler);
 
+async function initializeKafka() {
+  try {
+    await initKafka();
+  } catch (error) {
+    logger.error({ error }, "kafka producer init failed");
+  }
+}
+
 app.listen(PORT, () => {
   logger.info(`Task service is now running on port ${PORT}`);
+  initializeKafka();
 });

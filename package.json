@@ -20,7 +20,10 @@
     "type-check": "tsc --build",
     "lint": "eslint",
     "dotenvx:encrypt": "dotenvx encrypt",
-    "dotenvx:show": "dotenvx get -pp"
+    "dotenvx:show": "dotenvx get -pp",
+    "kafka:up": "docker compose -f docker/compose.yml up -d",
+    "kafka:down": "docker compose -f docker/compose.yml down",
+    "kafka:logs": "docker compose -f docker/compose.yml logs -f kafka"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
