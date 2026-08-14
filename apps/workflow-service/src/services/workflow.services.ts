@@ -1,7 +1,18 @@
 import { DomainEvent } from "@/utils/types";
-import { logger, TOPICS, createConsumer, runConsumer, AppError } from "shared";
+import {
+  logger,
+  TOPICS,
+  createConsumer,
+  createProducer,
+  runConsumer,
+  AppError,
+} from "shared";
 import * as worflowRepo from "../repositories/workflow.repositories";
 import { convertToPublicWorkflow } from "../utils/workflow.utils";
+
+// Module-level references for graceful shutdown lifecycle
+let consumerInstance: Awaited<ReturnType<typeof createConsumer>> | null = null;
+let localDlqProducer: Awaited<ReturnType<typeof createProducer>> | null = null;
 
 async function handleDomainEvent({
   eventType,
@@ -10,8 +21,11 @@ async function handleDomainEvent({
   message,
 }: DomainEvent) {
   if (!eventType || !taskId || !userId) {
-    logger.warn({ eventType, taskId, userId }, "invalid domain event");
-    return;
+    const error = new Error(
+      "Invalid domain event: Missing required validation properties",
+    );
+    error.name = "ValidationError"; // flag this name as an immediate DLQ route
+    throw error;
   }
   const workflow = await worflowRepo.createWorkflow({
     taskId,
@@ -27,28 +41,44 @@ async function handleDomainEvent({
       createdBy: workflow.created_by,
       createdAt: workflow.created_at,
     },
-    "workflow row created",
+    "Workflow row created",
   );
 }
 
 export async function startKafka() {
-  const consumer = await createConsumer(
+  // Initialize a local workflow-service producer to manage outbound DLQ routing
+  localDlqProducer = await createProducer("workflow-service-dlq");
+
+  consumerInstance = await createConsumer(
     "workflow-service",
     "workflow-service-group",
   );
-  runConsumer(
-    consumer,
+
+  await runConsumer(
+    consumerInstance,
     [TOPICS.TASK_EVENTS, TOPICS.MEDIA_EVENTS],
     async ({ message }) => {
       const value = message.value?.toString();
       if (!value) return;
-      try {
-        await handleDomainEvent(JSON.parse(value) as DomainEvent);
-      } catch (err) {
-        logger.error({ err }, "workflow consumer failed");
-      }
+      await handleDomainEvent(JSON.parse(value) as DomainEvent);
+    },
+    {
+      maxRetries: 3,
+      dlqProducer: localDlqProducer,
     },
   );
+}
+
+export async function shutdownWorkflowKafka() {
+  logger.warn("Stopping Workflow service Kafka links cleanly...");
+  if (consumerInstance) {
+    await consumerInstance.disconnect();
+    logger.info("Workflow consumer offline.");
+  }
+  if (localDlqProducer) {
+    await localDlqProducer.disconnect();
+    logger.info("Workflow local DLQ producer offline.");
+  }
 }
 
 export async function listWorkflowsByTask(
@@ -60,9 +90,8 @@ export async function listWorkflowsByTask(
   if (!task) {
     throw new AppError(404, "Task not found");
   }
-  // logger.info({})
   if (role !== "ADMIN" && task.created_by !== userId) {
-    throw new AppError(403, "forbidden");
+    throw new AppError(403, "Forbidden");
   }
   const rows = await worflowRepo.listWorkflowsByTaskId(taskId);
   return rows.map(convertToPublicWorkflow);

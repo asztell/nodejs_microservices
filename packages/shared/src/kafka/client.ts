@@ -5,7 +5,7 @@ export function createKafkaClient(
   clientId: string,
   config: Partial<KafkaConfig> = {},
 ) {
-  const brokers = (process.env.KAFKA_BROKER || "loalhost:9092")
+  const brokers = (process.env.KAFKA_BROKER || "localhost:9092")
     .split(",")
     .map((broker) => broker.trim())
     .filter(boolean);

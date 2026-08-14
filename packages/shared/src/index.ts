@@ -16,3 +16,5 @@ export {
   publishJSONSafely,
 } from "./kafka/producer.js";
 export { createConsumer, runConsumer } from "./kafka/consumer.js";
+export { fetchAllTopicMessages } from "./kafka/fetchAllMessages.js";
+export { fetchAllActiveTopics } from "./kafka/fetchAllActiveTopics.js";

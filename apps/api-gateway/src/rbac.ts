@@ -63,6 +63,16 @@ const rbacRules: RBACRule[] = [
     path: "/workflows/:taskId",
     roles: ["USER", "ADMIN"],
   },
+  {
+    method: "GET",
+    path: "/kafka/snapshot/:topicName",
+    roles: ["ADMIN"],
+  },
+  {
+    method: "GET",
+    path: "/kafka/topics",
+    roles: ["ADMIN"],
+  },
 ];
 
 function matchPath(pattern: string, actual: string): boolean {

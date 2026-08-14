@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { AppError, successResponse } from "shared";
+import { AppError, logger, successResponse } from "shared";
 import * as workflowService from "../services/workflow.services";
 
 function requireIdentity(req: Request) {
@@ -28,6 +28,7 @@ export async function listWorkflowsByTask(
     );
     successResponse(res, { workflows });
   } catch (err) {
+    logger.warn({ err }, "error listing workflows by task");
     next(err);
   }
 }

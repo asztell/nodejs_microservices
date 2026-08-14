@@ -84,6 +84,13 @@ app.use(
   proxyMiddlewear(WORKFLOW_SERVICE_URL, workflowsContext),
 );
 
+const kafkaContext = "/kafka";
+app.use(
+  kafkaContext,
+  gatewayAuth,
+  proxyMiddlewear(WORKFLOW_SERVICE_URL, kafkaContext),
+);
+
 app.use((_req, _res, next) => {
   next(new AppError(404, "Route not found"));
 });

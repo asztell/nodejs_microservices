@@ -5,9 +5,17 @@ import { logger } from "../logger/logger.js";
 export async function createProducer(clientId: string): Promise<Producer> {
   const kafka = createKafkaClient(clientId);
   const producer = kafka.producer();
-  await producer.connect();
-  logger.info({ clientId }, "kafka producer connected");
-  return producer;
+  try {
+    await producer.connect();
+    logger.info(`${clientId} - Kafka producer connected`);
+    return producer;
+  } catch (error) {
+    logger.error(
+      { clientId, error: (error as Error).message },
+      `${clientId} - Failed to connect Kafka producer`,
+    );
+    throw error;
+  }
 }
 
 export async function publishJSON(
@@ -25,7 +33,7 @@ export async function publishJSON(
       },
     ],
   });
-  logger.info({ topic, payload }, "kafka event published");
+  logger.info({ topic, payload }, "Kafka event published");
   return result;
 }
 
@@ -36,12 +44,12 @@ export async function publishJSONSafely(
   key?: string,
 ): Promise<void> {
   if (!producer) {
-    logger.warn({ topic }, "kafka producer is not ready");
+    logger.warn({ topic }, "Kafka producer is not ready");
     return;
   }
   try {
     await publishJSON(producer, topic, payload, key);
   } catch (error) {
-    logger.error({ error, topic }, "kafka publish failed");
+    logger.error({ error, topic }, "Kafka publish failed");
   }
 }

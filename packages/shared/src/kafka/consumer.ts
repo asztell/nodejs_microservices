@@ -9,7 +9,7 @@ export async function createConsumer(
   const kafka = createKafkaClient(clientId);
   const consumer = kafka.consumer({ groupId });
   await consumer.connect();
-  logger.info({ clientId, groupId }, "Kafka consumer connected");
+  logger.info(`${clientId} - Kafka consumer connected`);
   return consumer;
 }
 
