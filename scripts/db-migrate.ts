@@ -5,6 +5,8 @@ import { readFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { closePool, getPool } from "../packages/shared/src/db/pool.ts";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 dotenvx.config({ path: resolve(__dirname, "../.env") });
 
 async function main() {

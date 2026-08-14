@@ -24,6 +24,7 @@ const {
   AUTH_SERVICE_URL = "http://127.0.0.1:3001",
   TASK_SERVICE_URL = "http://127.0.0.1:3002",
   MEDIA_SERVICE_URL = "http://127.0.0.1:3003",
+  WORKFLOW_SERVICE_URL = "http://127.0.0.1:3004",
 } = process.env;
 
 const app = express();
@@ -74,6 +75,13 @@ app.use(
   mediaContext,
   gatewayAuth,
   proxyMiddlewear(MEDIA_SERVICE_URL, mediaContext),
+);
+
+const workflowsContext = "/workflows";
+app.use(
+  workflowsContext,
+  gatewayAuth,
+  proxyMiddlewear(WORKFLOW_SERVICE_URL, workflowsContext),
 );
 
 app.use((_req, _res, next) => {

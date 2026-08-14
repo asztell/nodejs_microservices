@@ -15,4 +15,4 @@ export {
   publishJSON,
   publishJSONSafely,
 } from "./kafka/producer.js";
-export { crateConsumer } from "./kafka/consumer.js";
+export { createConsumer, runConsumer } from "./kafka/consumer.js";

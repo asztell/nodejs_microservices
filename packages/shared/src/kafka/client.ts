@@ -17,7 +17,9 @@ export function createKafkaClient(
     brokers,
     logLevel: logLevel.ERROR,
     retry: {
-      retries: 8,
+      retries: 10,
+      initialRetryTime: 300,
+      factor: 2,
     },
     ...config,
   });

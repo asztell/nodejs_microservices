@@ -16,6 +16,7 @@
     "dev:gateway": "npm run dev -w api-gateway",
     "dev:tasks": "npm run dev -w task-service",
     "dev:media": "npm run dev -w media-service",
+    "dev:workflow": "npm run dev -w workflow-service",
     "db:migrate": "tsx scripts/db-migrate.ts",
     "type-check": "tsc --build",
     "lint": "eslint",
