@@ -249,23 +249,65 @@ Repository   Kafka
  PostgreSQL  Events
 ```
 
-### Infrastructure Flow
 
-```text
-                 ┌──────────────────┐
-                 │   Docker Compose │
-                 └────────┬─────────┘
-                          │
-              ┌───────────┴───────────┐
-              │                       │
-              ▼                       ▼
-       ┌──────────────┐        ┌──────────────┐
-       │  PostgreSQL  │        │    Kafka     │
-       └──────┬───────┘        └──────┬───────┘
-              │                       │
-              │                       │
-              └───────────┬───────────┘
-                          │
-                          ▼
-                    Microservices
-```
+## Authentication & Authorization Flow
+
+```mermaid
+flowchart TD
+
+    CLIENT["<b>1. CLIENT</b><br/>HTTP Request"]
+    GATEWAY["<b>2. API GATEWAY</b><br/>Security Boundary"]
+    STRIP["<b>3. STRIP IDENTITY HEADERS</b><br/>Remove spoofed headers"]
+    SECRET["<b>4. ATTACH GATEWAY SECRET</b><br/>x-gateway-secret"]
+    PUBLIC["<b>5. ROUTE</b><br/>Public / Protected"]
+
+    TOKEN{"<b>6. BEARER TOKEN?</b>"}
+    UNAUTHORIZED["<b>401</b><br/>Unauthorized"]
+
+    JWT["<b>7. VERIFY JWT</b><br/>Validate token"]
+
+    RBAC{"<b>8. RBAC</b><br/>Method + Path"}
+
+    NOT_FOUND["<b>404</b><br/>Route Not Found"]
+    FORBIDDEN["<b>403</b><br/>Forbidden"]
+
+    USER_HEADERS["<b>9. ATTACH IDENTITY</b><br/>x-user-id / x-user-role"]
+    AUTH["<b>10. PROXY</b><br/>Auth Service"]
+    VERIFY_SECRET["<b>11. VERIFY SECRET</b><br/>Trusted Gateway"]
+    GET_ME["<b>12. GET /auth/me</b>"]
+    USERS[("<b>13. NEON USERS</b>")]
+    RETURN_USER["<b>14. RETURN USER</b>"]
+
+    CLIENT --> GATEWAY
+    GATEWAY --> STRIP
+    STRIP --> SECRET
+    SECRET --> PUBLIC
+    PUBLIC --> TOKEN
+
+    TOKEN -- "NO" --> UNAUTHORIZED
+    TOKEN -- "YES" --> JWT
+
+    JWT --> RBAC
+
+    RBAC -- "NO RULE" --> NOT_FOUND
+    RBAC -- "ROLE NOT ALLOWED" --> FORBIDDEN
+    RBAC -- "ALLOWED" --> USER_HEADERS
+
+    USER_HEADERS --> AUTH
+    AUTH --> VERIFY_SECRET
+    VERIFY_SECRET --> GET_ME
+
+    GET_ME <--> USERS
+    GET_ME --> RETURN_USER
+
+    classDef process fill:#111111,stroke:#eeeeee,color:#ffffff,stroke-width:2px;
+    classDef decision fill:#111111,stroke:#eeeeee,color:#ffffff,stroke-width:2px;
+    classDef error fill:#111111,stroke:#eeeeee,color:#ffffff,stroke-width:2px;
+    classDef database fill:#111111,stroke:#eeeeee,color:#ffffff,stroke-width:2px;
+
+    class CLIENT,GATEWAY,STRIP,SECRET,PUBLIC,JWT,USER_HEADERS,AUTH,VERIFY_SECRET,GET_ME,RETURN_USER process;
+    class TOKEN,RBAC decision;
+    class UNAUTHORIZED,NOT_FOUND,FORBIDDEN error;
+    class USERS database;
+
+
