@@ -309,5 +309,5 @@ flowchart TD
     class TOKEN,RBAC decision;
     class UNAUTHORIZED,NOT_FOUND,FORBIDDEN error;
     class USERS database;
-
+```
 
